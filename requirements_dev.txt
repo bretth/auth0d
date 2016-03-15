@@ -1,0 +1,12 @@
+bumpversion
+wheel
+watchdog
+flake8
+tox
+coverage
+Sphinx
+django
+pytest
+pytest-django
+git+https://github.com/bretth/py-auth0#egg=auth0
+
