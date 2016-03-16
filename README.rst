@@ -32,7 +32,7 @@ The primary goals of this project are:
 
 A secondary goal of this project is to provide an an abstract user model for greenfield projects that need to link to Auth0 but don't need to migrate existing users. In this instance you may wish to implement your own User model that wraps the companion `py-auth0 library <https://github.com/bretth/py-auth0>`_.
 
-It's a non-goal to handle social authentication in User migration or to provide signup workflows. It you are not migrating users then using this backend defeats the benefits of Auth0's ratelimiting and DDOS mitigation, so you may want to implement your own login callback modelled on the login_callback in this package's views.py instead.
+It's a non-goal to handle social authentication in User migration or to provide signup workflows. It you are not migrating users then using the backend component of this project defeats the benefits of Auth0's ratelimiting and DDOS mitigation, so you may want to implement your own login callback modelled on the login_callback in this package's views.py instead.
 
 User Migration
 --------------
