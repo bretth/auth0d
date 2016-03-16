@@ -30,7 +30,7 @@ The primary goals of this project are:
 * migrate a django username login to an email backed Auth0 login
 * provide a callback for logging an Auth0 authenticated user into Django
 
-A secondary goal of this project is to provide an an abstract user model for greenfield projects that need to link to Auth0 but don't need to migrate existing users. In this instance you may wish to implement your own User model that wraps the companion `py-auth0 library <https://github.com/bretth/py-auth0>`_.
+A secondary goal of this project is to provide an abstract user model for greenfield projects that need to link to Auth0 but don't need to migrate existing users. In this instance you may wish to implement your own User model that wraps the companion `py-auth0 library <https://github.com/bretth/py-auth0>`_.
 
 It's a non-goal to handle social authentication in User migration or to provide signup workflows. It you are not migrating users then using the backend component of this project defeats the benefits of Auth0's ratelimiting and DDOS mitigation, so you may want to implement your own login callback modelled on the login_callback in this package's views.py instead.
 
@@ -43,9 +43,9 @@ The path this project takes will be to retain your existing login method, views 
 
 The migration is as follows:
 
-* User authenticates against the Auth0 backend. If that fails the user is authenticated against your existing backend and a new Auth0 user created if they are authenticated on your current backend.
+* User authenticates against the MigrateToAuth0Backend backend. If that fails the user is authenticated against your existing backend and a new Auth0 user created if they are authenticated on your current backend.
 * If the user authenticates against Auth0 they will be created in django if they don't exist locally.
-* A local Auth0User model holds the Auth0 user_id and has a one to one relationship with the new or existing User.
+* A local Auth0User model holds the Auth0 user_id and has a one to one relationship with the new or existing User to allow tracking of migration.
 * If a current django user needs to reset their password (usually via email) then a replacement SetPassword form can be passed into the standard django auth password_reset_confirm view that simply sets a new password on the Auth0 user if they exist *and* the local User.
 * An auth0_migrated management command will show what percentage have been migrated
 
