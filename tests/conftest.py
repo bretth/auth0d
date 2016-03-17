@@ -27,7 +27,7 @@ def pytest_configure():
        ],
        AUTH0_DOMAIN="https://YOURAPP.XX.auth0.com",
        AUTH0_CLIENT_ID="123",
-       AUTH0_JWT='123',
+       AUTH0_USER_JWT='123',
        AUTH0_CONNECTION="Username-Password-Authentication",
     )
     setup_test_environment()

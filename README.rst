@@ -3,10 +3,10 @@ auth0db
 ===============================
 
 .. image:: https://img.shields.io/pypi/v/auth0db.svg
-        :target: https://pypi.python.org/pypi/django-auth0
+        :target: https://pypi.python.org/pypi/auth0db
 
 .. image:: https://img.shields.io/travis/bretth/auth0db.svg
-        :target: https://travis-ci.org/bretth/django-auth0
+        :target: https://travis-ci.org/bretth/auth0db
 
 
 Migrate Django users to Auth0
@@ -53,23 +53,37 @@ To avoid any potential disruption for your users any methods that create or upda
 The other caveat is that in the event that multiple django usernames share a single email address, the first successful authenticated username will be migrated but the following ones never will, so you will need a plan to deal with these.
 
 Getting started
-----------------
+---------------
 
-In your django settings file you will need the following settings::
+::
+    $ pip install git+https://github.com/bretth/auth0db#egg=auth0db 
 
-    AUTH0_DOMAIN="https://YOURAPP.XX.auth0.com"
-    AUTH0_CLIENT_ID="Your_Auth0_Client_ID"
-    AUTH0_JWT='Your JSON web token'
-    AUTH0_CONNECTION="Username-Password-Authentication"
+Add auth0db to your INSTALLED_APPS django setting, and auth0db.backends.MigrateToAuth0Backend as your first authentication backend::
 
+    AUTHENTICATION_BACKENDS = [
+    'auth0db.backends.MigrateToAuth0Backend',
+    'django.contrib.auth.backends.ModelBackend'
+    ] 
 
-To create your JSON web token (jwt): 
+You can use alternative backends to the ModelBackend as the backend you are migrating from so long as they support either email or username as their username, return a user instance with an email and take a password as an argument.
+
+The newer Auth0 management api requires a JSON web token (jwt) which allows you to limit the api that your django project can access. To get that: 
 
 - Login to auth0.com
 - Go to their management api documentation (https://auth0.com/docs/api/v2)
-- Add scopes for the actions and entities you wish to access via api (eg create, read, update actions for the users entity)
-- Copy the generated `jwt` token.
+- Add scopes for the actions and entities you wish to access via api. In this case you need Create, Read, Update for the Users endpoint.
+- Copy the generated `jwt` token for your AUTH0_JWT setting.
 
+While in Auth0 you will need the database 'connection' name that will store your users.
+
+In your django settings file you will must have following settings::
+
+    AUTH0_DOMAIN="https://YOURAPP.XX.auth0.com"
+    AUTH0_CLIENT_ID="Your_Auth0_Client_ID"
+    AUTH0_USER_JWT='jwt with CRU permissions on Users'
+    AUTH0_CONNECTION="Username-Password-Authentication"  # or whatever yours is called
+
+The Auth0User model holds all the users and their auth0_id's that have been migrated thus far.
 
 Credits
 ---------

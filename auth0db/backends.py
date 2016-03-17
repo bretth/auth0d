@@ -30,7 +30,7 @@ class MigrateToAuth0Backend(ModelBackend):
     def __init__(self, authentication=None, management=None):
         self.auth0 = authentication or Authentication.connect(
             settings.AUTH0_DOMAIN, settings.AUTH0_CLIENT_ID, settings.AUTH0_CONNECTION)
-        self.api = management or Management.connect(settings.AUTH0_DOMAIN, settings.AUTH0_JWT)
+        self.api = management or Management.connect(settings.AUTH0_DOMAIN, settings.AUTH0_USER_JWT)
 
     def _authenticate(self, email, password, username=None):
         access_token = self.auth0.authenticate(username or email, password)
