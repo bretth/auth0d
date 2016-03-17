@@ -6,4 +6,4 @@ Installation
 
 ::
 
-    $ pip install auth0d
+    $ pip install auth0db

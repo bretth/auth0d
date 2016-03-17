@@ -15,7 +15,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/bretth/django-auth0/issues.
+Report bugs at https://github.com/bretth/auth0db/issues.
 
 If you are reporting a bug, please include:
 
@@ -45,7 +45,7 @@ articles, and such.
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/bretth/django-auth0/issues.
+The best way to send feedback is to file an issue at https://github.com/bretth/auth0db/issues.
 
 If you are proposing a feature:
 
@@ -57,17 +57,17 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `django-auth0` for local development.
+Ready to contribute? Here's how to set up `auth0db` for local development.
 
-1. Fork the `django-auth0` repo on GitHub.
+1. Fork the `auth0db` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/django-auth0.git
+    $ git clone git@github.com:your_name_here/auth0db.git
 
 3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
 
-    $ mkvirtualenv django-auth0
-    $ cd django-auth0/
+    $ mkvirtualenv auth0db
+    $ cd auth0db/
     $ python setup.py develop
 
 4. Create a branch for local development::
@@ -105,9 +105,3 @@ Before you submit a pull request, check that it meets these guidelines:
    https://travis-ci.org/bretth/django-auth0/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
-Tips
-----
-
-To run a subset of tests::
-
-    $ python -m unittest tests.test_django-auth0

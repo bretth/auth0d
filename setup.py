@@ -19,23 +19,23 @@ requirements = [
 ]
 
 setup(
-    name='django-auth0',
+    name='auth0db',
     version='0.1.0',
     description="Auth0 authentication backend for Django",
     long_description=readme + '\n\n' + history,
     author="Brett Haydon",
     author_email='brett@haydon.id.au',
-    url='https://github.com/bretth/auth0d',
+    url='https://github.com/bretth/auth0db',
     packages=[
-        'auth0d',
+        'auth0db',
     ],
-    package_dir={'auth0d':
-                 'auth0d'},
+    package_dir={'auth0db':
+                 'auth0db'},
     include_package_data=True,
     install_requires=requirements,
     license="ISCL",
     zip_safe=False,
-    keywords='django-auth0',
+    keywords='auth0db',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

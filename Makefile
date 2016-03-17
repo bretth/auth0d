@@ -46,7 +46,7 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	flake8 auth0d tests
+	flake8 auth0db tests
 
 test:
 	python setup.py test
@@ -55,12 +55,12 @@ test-all:
 	tox
 
 coverage:
-	py.test --cov-report term-missing --cov=auth0d
+	py.test --cov-report term-missing --cov=auth0db
 
 docs:
-	rm -f docs/auth0d.rst
+	rm -f docs/auth0db.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ auth0d
+	sphinx-apidoc -o docs/ auth0db
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html

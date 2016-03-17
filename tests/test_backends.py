@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 """
-test_django-auth0
+test_auth0db
 ----------------------------------
 
-Tests for `auth0d` module.
+Tests for `auth0db` module.
 """
 import pytest
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 
 try:
     from unittest.mock import Mock
@@ -16,10 +17,10 @@ except ImportError:
 
 from auth0 import HTTPError
 
-from auth0d.backends import _get_update_or_create_user, MigrateToAuth0Backend
-from auth0d.compatibility import get_user_model
-from auth0d.exceptions import UnhandledUserNameField
-from auth0d.models import Auth0User
+from auth0db.backends import _get_update_or_create_user, MigrateToAuth0Backend
+from auth0db.compatibility import get_user_model
+from auth0db.exceptions import UnhandledUserNameField
+from auth0db.models import Auth0User
 
 
 testsettings = [
@@ -133,5 +134,36 @@ class TestMigrateToAuth0Backend(object):
         created = failing_backend._create_auth0_user(
             user, '123', commit=False)
         assert not created
+
+    def test_authenticate_permission_denied(self, monkeypatch):
+        backend = MigrateToAuth0Backend()
+        # patch self._authenticate to return None
+        monkeypatch.setattr(backend, '_authenticate', lambda *args, **kwargs: None)
+        # patch backend 'django.contrib.auth.backends.ModelBackend.authenticate to return None
+        monkeypatch.setattr(
+            'django.contrib.auth.backends.ModelBackend.authenticate',
+            lambda *args, **kwargs: None)
+        with pytest.raises(PermissionDenied):
+            backend.authenticate('brett', 'password', email='brett@example.com')
+        # assert Permission Denied raised
+
+    def test_authenticate_2nd_backend(self, monkeypatch):
+        User = get_user_model()
+        user = User(id=1, username="brett", email="brett@example.com")
+        backend = MigrateToAuth0Backend()
+        # patch backend._authenticate to simulate Auth0 not authenticating the user
+        monkeypatch.setattr(backend, '_authenticate', lambda *args, **kwargs: None)
+        # patch backend 'django.contrib.auth.backends.ModelBackend.authenticate to
+        # authenticate our mock user
+        monkeypatch.setattr(
+            'django.contrib.auth.backends.ModelBackend.authenticate',
+            lambda *args, **kwargs: user)
+        # patch backend._create_auth0_user to do nothing
+        monkeypatch.setattr(backend, '_create_auth0_user', lambda *args, **kwargs: None)
+
+        auth_user = backend.authenticate(email="brett@example.com", password='password')
+        assert auth_user.id == 1
+
+        
 
 

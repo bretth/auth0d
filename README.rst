@@ -1,15 +1,15 @@
 ===============================
-auth0d
+auth0db
 ===============================
 
-.. image:: https://img.shields.io/pypi/v/auth0d.svg
+.. image:: https://img.shields.io/pypi/v/auth0db.svg
         :target: https://pypi.python.org/pypi/django-auth0
 
-.. image:: https://img.shields.io/travis/bretth/auth0d.svg
+.. image:: https://img.shields.io/travis/bretth/auth0db.svg
         :target: https://travis-ci.org/bretth/django-auth0
 
 
-Auth0 authentication for Django
+Migrate Django users to Auth0
 
 * Free software: ISC license
 
@@ -26,20 +26,17 @@ Auth0 is a login as a service provider which at it's simplest will offload the l
 The primary goals of this project are:
 
 * provide a method for migrating existing django users to Auth0 database authentication for older and recent django projects
-* handle both username or email username django user models
+* handle username or email as username django user models
 * migrate a django username login to an email backed Auth0 login
-* provide a callback for logging an Auth0 authenticated user into Django
 
-A secondary goal of this project is to provide an abstract user model for greenfield projects that need to link to Auth0 but don't need to migrate existing users. In this instance you may wish to implement your own User model that wraps the companion `py-auth0 library <https://github.com/bretth/py-auth0>`_.
-
-It's a non-goal to handle social authentication in User migration or to provide signup workflows. It you are not migrating users then using the backend component of this project defeats the benefits of Auth0's ratelimiting and DDOS mitigation, so you may want to implement your own login callback modelled on the login_callback in this package's views.py instead.
+A non-goal is to handle existing or proposed social authentication in User migration or to provide signup workflows. It you are not migrating users then using the backend component of this project defeats the benefits of Auth0's ratelimiting and DDOS mitigation.
 
 User Migration
 --------------
 
-Auth0 already provides a progressive migration path from your existing project as long as your django passwords are upgraded to bcrypt. If you want to go that route Auth0 `document that method <https://auth0.com/docs/connections/database/migrating>`_, but that route might require subscription to a premium plan and will still require progressive upgrading of all local passwords to use bcrypt first which defeats the simplicity of this approach.
+Auth0 already provides a progressive migration path from your existing project as long as your django passwords are upgraded to bcrypt. If you want to go that route Auth0 `document that method <https://auth0.com/docs/connections/database/migrating>`_, but that route might require subscription to a premium plan and will still require progressive upgrading of all local passwords to use bcrypt first which defeats the potential benefits of this approach.
 
-The path this project takes will be to retain your existing login method, views and templates but with the additional auth0d MigrateToAuth0Backend backend inserted ahead of your current backend which will allow you to use their free or more cost effective plans as appropriate. 
+The path this project takes will be to retain your existing login method, views and templates but with the additional auth0db MigrateToAuth0Backend backend inserted ahead of your current backend which will allow you to use their free or more cost effective plans as appropriate. 
 
 The migration is as follows:
 
@@ -54,6 +51,25 @@ The end game in your migration will be switching over to your own new templates 
 To avoid any potential disruption for your users any methods that create or update a password on Auth0 should also update the local user model until the switchover is complete at which point you can safely remove the MigrateToAuth0Backend.
 
 The other caveat is that in the event that multiple django usernames share a single email address, the first successful authenticated username will be migrated but the following ones never will, so you will need a plan to deal with these.
+
+Getting started
+----------------
+
+In your django settings file you will need the following settings::
+
+    AUTH0_DOMAIN="https://YOURAPP.XX.auth0.com"
+    AUTH0_CLIENT_ID="Your_Auth0_Client_ID"
+    AUTH0_JWT='Your JSON web token'
+    AUTH0_CONNECTION="Username-Password-Authentication"
+
+
+To create your JSON web token (jwt): 
+
+- Login to auth0.com
+- Go to their management api documentation (https://auth0.com/docs/api/v2)
+- Add scopes for the actions and entities you wish to access via api (eg create, read, update actions for the users entity)
+- Copy the generated `jwt` token.
+
 
 Credits
 ---------

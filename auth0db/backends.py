@@ -5,6 +5,7 @@ import django.dispatch
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_backends
+from django.core.exceptions import PermissionDenied
 try:
     from django.contrib.auth import get_user_model
 except ImportError:
@@ -66,26 +67,32 @@ class MigrateToAuth0Backend(ModelBackend):
             return None
 
     def authenticate(self, username=None, password=None, **kwargs):
+        user = None
         UserModel = get_user_model()
         email = kwargs.get('email', '')
+        # authenticate via Auth0
         userinfo = self._authenticate(UserModel, email, password, username)
-        user = _get_update_or_create_user(UserModel, userinfo)
+        if userinfo:
+            user = _get_update_or_create_user(UserModel, userinfo)
         if user:
             return user
-
-        # as per django.contrib.auth.authenticate except skip the this backend
+        # no user so try and authenticate through other backends
         for backend in get_backends()[1:]:
-            try:
-                if UserModel.USERNAME_FIELD == 'email':
-                    user = backend.authenticate(email, password)
-                else:
-                    user = backend.authenticate(username, password)
-            except TypeError:
-                # This backend doesn't accept these credentials as arguments. Try the next one.
+            if UserModel.USERNAME_FIELD == 'email':
+                # django has a more arbitrary **credentials model
+                # but we're only going to handle email and username backends
+                user = backend.authenticate(email, password)
+            else:
+                user = backend.authenticate(username, password)
+            if not user:
                 continue
-        if user and user.email:  # create the user on Auth0.
-            self._create_auth0_user(user, password)
-            return user
+            elif user and user.email:  # create the user on Auth0.
+                self._create_auth0_user(user, password)
+            if user:
+                return user
+        # if we didn't authenticate raise an error to ensure django
+        # doesn't also try and authenticate down the backends again
+        raise PermissionDenied
 
 
 def _get_update_or_create_user(UserModel, userinfo, defaults={'is_active': True}):
