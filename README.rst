@@ -59,7 +59,7 @@ Install auth0db::
 
     $ pip install git+https://github.com/bretth/auth0db#egg=auth0db 
 
-Add **auth0db** to your **INSTALLED_APPS** django setting, and **auth0db.backends.MigrateToAuth0Backend** as your first authentication backend::
+Add *auth0db* to your *INSTALLED_APPS* django setting, and *auth0db.backends.MigrateToAuth0Backend* as your first authentication backend::
 
     AUTHENTICATION_BACKENDS = [
     'auth0db.backends.MigrateToAuth0Backend',
