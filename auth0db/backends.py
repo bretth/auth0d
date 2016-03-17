@@ -106,11 +106,6 @@ def _get_update_or_create_user(UserModel, userinfo, defaults={'is_active': True}
         return None
     email = userinfo['email']
     username = userinfo.get('username', None)
-    auth0_id = userinfo['user_id']
-
-    auth0_id_field = getattr(settings, 'AUTH0_ID_FIELD', None)
-    if auth0_id_field:
-        defaults[auth0_id_field] = auth0_id
 
     if UserModel.USERNAME_FIELD == 'username':
         defaults['email'] = email
