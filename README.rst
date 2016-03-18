@@ -25,14 +25,14 @@ Auth0 is a login as a service provider which at it's simplest will offload the l
 
 The primary goals of this project are:
 
-* provide a simple user friendly method for migrating existing django users to Auth0 database authentication for older and recent django projects
+* provide a simple user friendly method for migrating existing django users to Auth0 database authentication for legacy and recent django projects
 * handle username or email as username django user models
 * migrate a django username login to an email backed Auth0 login
 
 A non-goal is to handle existing or proposed social authentication in User migration or to provide signup workflows. It you are not migrating users then the backend in this project defeats the benefits of Auth0's ratelimiting and DDOS mitigation.
 
-User Migration
---------------
+User Migration Process
+----------------------
 
 Auth0 already provides a progressive migration path from your existing project as long as your django passwords are upgraded to bcrypt. If you want to go that route Auth0 `document that method <https://auth0.com/docs/connections/database/migrating>`_, but that route might require subscription to a premium plan and will still require progressive upgrading of all local passwords to use bcrypt first which defeats the potential benefits of this approach.
 
@@ -77,12 +77,45 @@ The newer Auth0 management api requires a JSON web token (jwt) which allows you 
 
 While in Auth0 you will need the database 'connection' name that will store your users, the usual api keys, and the app domain.
 
-In your django settings file the following settings are mandatory::
+In your django settings file you'll need the following settings::
 
-    AUTH0_DOMAIN="https://YOURAPP.XX.auth0.com"
-    AUTH0_CLIENT_ID="Your_Auth0_Client_ID"
-    AUTH0_USER_JWT='jwt with CRU permissions on Users'
-    AUTH0_CONNECTION="Username-Password-Authentication"  # or whatever yours is called
+    # Mandatory settings
+    AUTH0_DOMAIN = "https://YOURAPP.XX.auth0.com"
+    AUTH0_CLIENT_ID = "Your_Auth0_Client_ID"
+    AUTH0_USER_JWT = 'jwt with CRU permissions on Users'
+    AUTH0_CONNECTION = "Username-Password-Authentication"  # or whatever yours is called
+
+    # Optional
+    AUTH_USER_MODEL = "auth.User"  # default 
+
+    # Not required for Django >= 1.5, optional for Django pre 1.5
+    # If your legacy User model has a different username field...   
+    USERNAME_FIELD = "username"  # default
+
+Since we need to dynamically set a foreign key to the User model you'll need to create a package folder in your project and use the appropriate setting to point to it.:
+
+    # Django pre 1.7 with South installed
+    SOUTH_MIGRATION_MODULES = {
+        'auth0db': 'djangoproject.migrations.auth0db',
+    }
+
+    # Django >= 1.7
+    MIGRATION_MODULES = {
+        'auth0db': 'djangoproject.migrations.auth0db',
+    }
+
+.. note:: I've had some issues with the legacy SOUTH_MIGRATION_MODULES being picky about where the 0001_initial.py module is located and fail to migrate in some locations. The best workaround is to install auth0db app directly into your codebase if that is an issue for you.
+
+Now create initial migration of the auth0db and migrate it:
+
+    # Django pre 1.7 with South installed
+    ./manage.py schemamigration --initial auth0db
+
+    # Django >= 1.7
+    ./manage.py makemigration auth0db
+
+    # Migrate the app!
+    ./manage.py migrate auth0db
 
 Once migrated, the Auth0User model holds the user id and their corresponding auth0_id that can be used to track the migration.
 
