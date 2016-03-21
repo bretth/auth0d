@@ -35,7 +35,7 @@ class MigrateToAuth0Backend(ModelBackend):
     def _authenticate(self, email, password, username=None):
         access_token = self.auth0.authenticate(username or email, password)
         if access_token:  # authenticated in Auth0
-            return self.auth0.get_user_info(access_token)
+            return self.auth0.get_userinfo(access_token)
 
     def _create_auth0_user(self, user, raw_password, email_verified=True, commit=True):
         kwargs = {'email': user.email, 'password': raw_password, 'email_verified': email_verified}
