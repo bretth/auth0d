@@ -71,7 +71,7 @@ class MigrateToAuth0Backend(ModelBackend):
         UserModel = get_user_model()
         email = kwargs.get('email', '')
         # authenticate via Auth0
-        userinfo = self._authenticate(UserModel, email, password, username)
+        userinfo = self._authenticate(email, password, username)
         if userinfo:
             user = _get_update_or_create_user(UserModel, userinfo)
         if user:
