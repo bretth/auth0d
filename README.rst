@@ -104,8 +104,6 @@ Since we need to dynamically set a foreign key to the User model you'll need to 
         'auth0db': 'djangoproject.migrations.auth0db',
     }
 
-.. note:: I've had some issues with the legacy SOUTH_MIGRATION_MODULES being picky about where the 0001_initial.py module is located and fail to migrate in some locations. The best workaround is to install auth0db app directly into your codebase if that is an issue for you.
-
 Now create initial migration of the auth0db and migrate it:
 
     # Django pre 1.7 with South installed
