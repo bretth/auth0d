@@ -87,6 +87,7 @@ In your django settings file you'll need the following settings::
 
     # Optional
     AUTH_USER_MODEL = "auth.User"  # default 
+    AUTH0_REQUIRE_USERNAME = False  # default - to match the CONNECTION setting
 
     # Not required for Django >= 1.5, optional for Django pre 1.5
     # If your legacy User model has a different username field...   

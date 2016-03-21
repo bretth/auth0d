@@ -45,7 +45,9 @@ def userinfo(request):
         "email": "brett@example.com",
         "password": "pass",
         "email_verified": 'true',
-        "user_id":  "auth0|56e00ca5bc1a37473fe4aa84"
+        "user_id":  "auth0|56e00ca5bc1a37473fe4aa84",
+        "app_metadata": {},
+        "user_metadata": {}
         }
     if username_field == 'username':
         userinfo['username'] = 'brett'
@@ -78,7 +80,7 @@ def backend(request, monkeypatch):
     def mock_user(**kwargs):
         return ab.api.users(user_id='1', **kwargs)
     monkeypatch.setattr(ab.api.users, "create", mock_user)
-    monkeypatch.setattr(ab.api.users, "get", lambda q: None)
+    monkeypatch.setattr(ab.api.users, "get", lambda **kwargs: None)
     Auth0User.objects.get_or_create = Mock(side_effect=mock_auth0user)
 
     return ab
@@ -96,7 +98,7 @@ def failing_backend(request, monkeypatch):
     def mock_user(**kwargs):
         raise HTTPError
     monkeypatch.setattr(ab.api.users, "create", mock_user)
-    monkeypatch.setattr(ab.api.users, "get", lambda q: None)
+    monkeypatch.setattr(ab.api.users, "get", lambda **kwargs: None)
     Auth0User.objects.get_or_create = Mock(side_effect=mock_auth0user)
     return ab
 
@@ -126,7 +128,7 @@ class TestMigrateToAuth0Backend(object):
 
         user = User(id=1, email='brett@example.com', username='brett')
         created = backend._create_auth0_user(user, '123', 'brett', commit=False)
-        assert created.username == 'brett'
+        assert created.app_metadata['username'] == 'brett'
 
     def test__failing_create_auth_user(self, failing_backend):
         User = get_user_model()

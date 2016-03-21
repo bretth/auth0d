@@ -39,12 +39,22 @@ class MigrateToAuth0Backend(ModelBackend):
 
     def _create_auth0_user(self, user, raw_password, email_verified=True, commit=True):
         kwargs = {'email': user.email, 'password': raw_password, 'email_verified': email_verified}
-        lucene_q = 'email:"%s"' % user.email
-        if user.username and user.username != user.email:
-            kwargs['username'] = user.username
-            lucene_q = 'username:"%s"' % user.username
+        kwargs['connection'] = self.auth0.connection
+        if user.USERNAME_FIELD == 'username':
+            if getattr(settings, 'AUTH0_REQUIRE_USERNAME', False):
+                kwargs['username'] = user.username
+        if getattr(user, 'username', None):
+            kwargs['app_metadata'] = {"username": user.username}
+        given_name = getattr(user, 'first_name', None)
+        if given_name:
+            kwargs['given_name'] = given_name
+        family_name = getattr(user, 'last_name', None)
+        if family_name:
+            kwargs['family_name'] = family_name
+        lucene_q = 'email:%s AND identities.connection:%s' % (user.email, self.auth0.connection)
         try:
-            a0_user = self.api.users.get(q=lucene_q) or self.api.users.create(**kwargs)
+            a0_user = self.api.users.get(q=lucene_q, search_engine='v2') or \
+                self.api.users.create(**kwargs)
             a0_local, created = Auth0User.objects.get_or_create(
                 auth0_id=a0_user.user_id, defaults={'user': user})
             if a0_local and not created:  # possibly we actually want an error raised here?
