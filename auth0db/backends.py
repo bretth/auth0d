@@ -40,10 +40,11 @@ class MigrateToAuth0Backend(ModelBackend):
     def _create_auth0_user(self, user, raw_password, email_verified=True, commit=True):
         kwargs = {'email': user.email, 'password': raw_password, 'email_verified': email_verified}
         kwargs['connection'] = self.auth0.connection
+        req_username = getattr(settings, 'AUTH0_REQUIRE_USERNAME', False)
         if user.USERNAME_FIELD == 'username':
-            if getattr(settings, 'AUTH0_REQUIRE_USERNAME', False):
+            if req_username:
                 kwargs['username'] = user.username
-        if getattr(user, 'username', None):
+        if getattr(user, 'username', None) and not req_username:  # store legacy username
             kwargs['app_metadata'] = {"username": user.username}
         given_name = getattr(user, 'first_name', None)
         if given_name:
