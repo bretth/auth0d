@@ -83,7 +83,7 @@ class MigrateToAuth0Backend(ModelBackend):
         # authenticate via Auth0
         userinfo = self._authenticate(email, password, username)
         if userinfo:
-            user = _get_update_or_create_user(UserModel, userinfo)
+            user = _get_or_create_user(UserModel, userinfo)
         if user:
             return user
         # no user so try and authenticate through other backends
@@ -105,7 +105,7 @@ class MigrateToAuth0Backend(ModelBackend):
         raise PermissionDenied
 
 
-def _get_update_or_create_user(UserModel, userinfo, defaults={'is_active': True}):
+def _get_or_create_user(UserModel, userinfo, defaults={'is_active': True}):
     """ Get or create the Django User
     :param User UserModel: The django project UserModel
     :param dict user_info: The Auth0 user_info profile
@@ -115,19 +115,16 @@ def _get_update_or_create_user(UserModel, userinfo, defaults={'is_active': True}
     if not userinfo:
         return None
     email = userinfo['email']
-    username = userinfo.get('username', None)
-
+    username = userinfo.get('username', userinfo['app_metadata'].get('username', ''))
     if UserModel.USERNAME_FIELD == 'username':
         defaults['email'] = email
         user, created = UserModel._default_manager.get_or_create(
             username=username, defaults=defaults)
     elif UserModel.USERNAME_FIELD == 'email':
+        if username:
+            defaults['username'] = username
         user, created = UserModel._default_manager.get_or_create(
             email=email, defaults=defaults)
     else:
         raise UnhandledUserNameField("USERNAME_FIELD can only be username or email")
-    if user and not created:
-        if user.email != email:
-            user.email = email
-            user.save()
     return user

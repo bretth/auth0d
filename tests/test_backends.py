@@ -17,7 +17,7 @@ except ImportError:
 
 from auth0 import HTTPError
 
-from auth0db.backends import _get_update_or_create_user, MigrateToAuth0Backend
+from auth0db.backends import _get_or_create_user, MigrateToAuth0Backend
 from auth0db.compatibility import get_user_model
 from auth0db.exceptions import UnhandledUserNameField
 from auth0db.models import Auth0User
@@ -103,10 +103,10 @@ def failing_backend(request, monkeypatch):
     return ab
 
 
-def test__get_update_or_create_user(userinfo, UserModel):
+def test__get_or_create_user(userinfo, UserModel):
 
     try:
-        user = _get_update_or_create_user(UserModel, userinfo)
+        user = _get_or_create_user(UserModel, userinfo)
         assert user.email == 'brett@example.com'
         username = userinfo.get('username', None)
         if username:
