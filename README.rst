@@ -80,7 +80,7 @@ While in Auth0 you will need the database 'connection' name that will store your
 In your django settings file you'll need the following settings::
 
     # Mandatory settings
-    AUTH0_DOMAIN = "https://YOURAPP.XX.auth0.com"
+    AUTH0_DOMAIN = "YOURAPP.XX.auth0.com"  #
     AUTH0_CLIENT_ID = "Your_Auth0_Client_ID"
     AUTH0_USER_JWT = 'jwt with CRU permissions on Users'
     AUTH0_CONNECTION = "Username-Password-Authentication"  # or whatever yours is called
