@@ -12,5 +12,5 @@ class Auth0User(models.Model):
         on_delete=models.SET_NULL,
         null=True, blank=True)
     created = models.DateTimeField(default=timezone.now)
-
+    
 

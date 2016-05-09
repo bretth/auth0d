@@ -15,7 +15,8 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-
+    'auth0plus',
+    'auth0-python',
 ]
 
 setup(

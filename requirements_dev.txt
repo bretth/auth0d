@@ -8,5 +8,7 @@ Sphinx
 django
 pytest
 pytest-django
-git+https://github.com/bretth/py-auth0#egg=auth0
+python-dotenv
+
+
 

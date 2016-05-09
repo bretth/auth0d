@@ -49,7 +49,7 @@ lint:
 	flake8 auth0db tests
 
 test:
-	python setup.py test
+	py.test -x
 
 test-all:
 	tox
