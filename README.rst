@@ -16,7 +16,7 @@ Migrate Django users to Auth0
 Warning
 --------
 
-This is an experimental library. I have very little spare time and a history of unmaintained repositories, but hey if it works for you then go for it!
+This is alpha quality software. It was written to migrate users from a Django 1.4 project onto Auth0 but it is unlik
 
 Introduction
 ------------
@@ -25,7 +25,7 @@ Auth0 is a login as a service provider which at it's simplest will offload the l
 
 The primary goals of this project are:
 
-* provide a simple user friendly method for migrating existing django users to Auth0 database authentication for legacy and recent django projects
+* provide a simple user friendly method for migrating existing django users to Auth0 database authentication for legacy and recent django projects (I am working with Django 1.4)
 * handle username or email as username django user models
 * migrate a django username login to an email backed Auth0 login
 
@@ -57,7 +57,7 @@ Getting started
 
 Install auth0db::
 
-    $ pip install git+https://github.com/bretth/auth0db#egg=auth0db 
+    $ pip install auth0db 
 
 Add *auth0db* to your *INSTALLED_APPS* django setting, and *auth0db.backends.MigrateToAuth0Backend* as your first authentication backend::
 
@@ -93,16 +93,17 @@ In your django settings file you'll need the following settings::
     # If your legacy User model has a different username field...   
     USERNAME_FIELD = "username"  # default
 
-Since we need to dynamically set a foreign key to the User model you'll need to create a package folder in your project and use the appropriate setting to point to it.:
+Since we need to dynamically set a foreign key to the User model you'll need to create a package folder in your project and use the appropriate migration setting to point to it for the database migration. I suggest putting it with your other local apps and giving it a name that can't clash when South/Django is locating all the migration folders. In this case our project folder is *djangoproject* so we'll create 'djangoproject.auth0db_migrations' with *__init__.py* in it.
+::
 
     # Django pre 1.7 with South installed
     SOUTH_MIGRATION_MODULES = {
-        'auth0db': 'djangoproject.migrations.auth0db',
+        'auth0db': 'djangoproject.auth0db_migrations',
     }
 
     # Django >= 1.7
     MIGRATION_MODULES = {
-        'auth0db': 'djangoproject.migrations.auth0db',
+        'auth0db': 'djangoproject.auth0db_migrations',
     }
 
 Now create initial migration of the auth0db and migrate it:
@@ -113,8 +114,11 @@ Now create initial migration of the auth0db and migrate it:
     # Django >= 1.7
     ./manage.py makemigration auth0db
 
+Your migrations folder should now have the initial migration in it.
+::
     # Migrate the app!
     ./manage.py migrate auth0db
+
 
 Once migrated, the Auth0User model holds the user id and their corresponding auth0_id that can be used to track the migration.
 

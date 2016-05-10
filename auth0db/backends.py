@@ -42,14 +42,18 @@ class MigrateToAuth0Backend(ModelBackend):
         self.users = Users(settings.AUTH0_DOMAIN)
 
     def _authenticate(self, email, password, username=None):
-        access_token = self.db.login(
-            settings.AUTH0_CLIENT_ID,
-            username or email, password,
-            settings.AUTH0_CONNECTION).get('access_token', None)
-
-        if access_token:  # authenticated in Auth0
-            return json.loads(self.users.userinfo(access_token))
-
+        try:
+            access_token = self.db.login(
+                settings.AUTH0_CLIENT_ID,
+                username or email, password,
+                settings.AUTH0_CONNECTION).get('access_token', None)
+            if access_token:  # authenticated in Auth0
+                        return json.loads(self.users.userinfo(access_token))
+        except Auth0Error as err:
+            # do we want to distinguish between user/pass and other error
+            # err.message == invalid_user_password
+            return
+        
     def _create_auth0_user(self, user, raw_password, email_verified=True, commit=True):
         kwargs = {'password': raw_password, 'email_verified': email_verified}
         # handle username
@@ -71,6 +75,7 @@ class MigrateToAuth0Backend(ModelBackend):
             if not created:
                 a0_user.password = raw_password
                 a0_user.save()
+            
             a0_local, created = Auth0User.objects.get_or_create(
                 auth0_id=a0_user.user_id, defaults={'user': user})
             if a0_local and not created:  # possibly we actually want an error raised here?
