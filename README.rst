@@ -16,7 +16,7 @@ Migrate Django users to Auth0
 Warning
 --------
 
-This is alpha quality software. It was written to migrate users from a Django 1.4 project onto Auth0 but it is unlik
+This is alpha quality software. It was written to migrate some users from a Django 1.4 project onto Auth0 but it is unlikely to get much love beyond this singular task; nonetheless others may find it useful.
 
 Introduction
 ------------
@@ -55,11 +55,21 @@ The other caveat is that in the event that multiple django usernames share a sin
 Getting started
 ---------------
 
-Install auth0db::
+To get started you will need your Auth0 domain, client id, and connection to the database that will hold your users. You will also need a JSON web token (jwt):
+
+- Login to auth0.com
+- Go to their management api documentation (https://auth0.com/docs/api/v2)
+- Add scopes for the actions and entities you wish to access via api (eg create, read, update, and delete actions for the users entity)
+- Copy the generated `jwt`.
+- Go to the dashboard and get (or setup) your client id, domain, db connection for your test app.
+
+Install auth0db.
+::
 
     $ pip install auth0db 
 
-Add *auth0db* to your *INSTALLED_APPS* django setting, and *auth0db.backends.MigrateToAuth0Backend* as your first authentication backend::
+Add *auth0db* to your INSTALLED_APPS django setting, and *auth0db.backends.MigrateToAuth0Backend* as your first authentication backend.
+::
 
     AUTHENTICATION_BACKENDS = [
     'auth0db.backends.MigrateToAuth0Backend',
@@ -68,16 +78,7 @@ Add *auth0db* to your *INSTALLED_APPS* django setting, and *auth0db.backends.Mig
 
 You can use alternative backends to the ModelBackend as the backend you are migrating from so long as they support either email or username as their username, return a user instance with an email and take a password as an argument.
 
-The newer Auth0 management api requires a JSON web token (jwt) which allows you to limit the scope of the api that your django project can access. To get that: 
-
-- Login to auth0.com
-- Go to their management api documentation (https://auth0.com/docs/api/v2)
-- Add scopes for Create, Read, Update on the Users endpoint.
-- Copy the generated `jwt` token for your AUTH0_USER_JWT setting.
-
-While in Auth0 you will need the database 'connection' name that will store your users, the usual api keys, and the app domain.
-
-In your django settings file you'll need the following settings::
+In your django settings file you'll also need the following settings::
 
     # Mandatory settings
     AUTH0_DOMAIN = "YOURAPP.XX.auth0.com"  #
@@ -106,7 +107,8 @@ Since we need to dynamically set a foreign key to the User model you'll need to 
         'auth0db': 'djangoproject.auth0db_migrations',
     }
 
-Now create initial migration of the auth0db and migrate it:
+Now create initial migration of the auth0db and migrate it.
+::
 
     # Django pre 1.7 with South installed
     ./manage.py schemamigration --initial auth0db
